@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)https://radical-aqua-h0ybalsx7i.edgeone.app/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WellPro — Performance Test Dashboard</title>
+  <script src="./WellPro — Performance Test Dashboard_files/chart.umd.min.js.download"></script>
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --success: #34a853;
+      --warn:    #fbbc04;
+      --error:   #ea4335;
+      --bg:      #f8f9fa;
+      --card:    #ffffff;
+      --border:  #e0e0e0;
+      --text:    #202124;
+      --muted:   #5f6368;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+    /* ── Header ── */
+    .header { background: linear-gradient(135deg,#1a73e8,#0d47a1); color:#fff; padding:24px 32px; display:flex; justify-content:space-between; align-items:center; }
+    .header h1 { font-size:22px; font-weight:600; }
+    .header .meta { font-size:12px; opacity:.85; text-align:right; line-height:1.7; }
+    .badge { display:inline-block; background:rgba(255,255,255,.2); border-radius:12px; padding:2px 10px; font-size:11px; margin-left:8px; }
+
+    /* ── Layout ── */
+    .container { max-width:1280px; margin:0 auto; padding:24px 32px; }
+    .section-title { font-size:16px; font-weight:600; margin:28px 0 14px; color:var(--text); border-left:4px solid var(--primary); padding-left:10px; }
+    .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+    .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    @media(max-width:900px){ .grid-4{grid-template-columns:repeat(2,1fr);} .grid-2{grid-template-columns:1fr;} }
+
+    /* ── Cards ── */
+    .card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:20px; }
+    .kpi-card { text-align:center; }
+    .kpi-card .value { font-size:28px; font-weight:700; }
+    .kpi-card .label { font-size:12px; color:var(--muted); margin-top:4px; }
+    .kpi-card.green .value { color:var(--success); }
+    .kpi-card.blue  .value { color:var(--primary); }
+    .kpi-card.red   .value { color:var(--error); }
+    .kpi-card.amber .value { color:#e37400; }
+
+    /* ── Tables ── */
+    .tbl-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th { background:#f1f3f4; text-align:left; padding:9px 12px; font-weight:600; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.4px; border-bottom:2px solid var(--border); white-space:nowrap; }
+    td { padding:9px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#f8f9fa; }
+    .tag { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; }
+    .tag.pass { background:#e6f4ea; color:#137333; }
+    .tag.warn { background:#fef7e0; color:#b06000; }
+    .tag.fail { background:#fce8e6; color:#c5221f; }
+    .bar-cell { display:flex; align-items:center; gap:8px; }
+    .bar { height:8px; border-radius:4px; background:var(--primary); min-width:4px; }
+
+    /* ── APDEX colours ── */
+    .apdex-e { color:var(--success); font-weight:700; }
+    .apdex-g { color:#0f9d58; font-weight:600; }
+    .apdex-f { color:var(--warn); font-weight:600; }
+    .apdex-p { color:var(--error); font-weight:600; }
+
+    /* ── Charts ── */
+    .chart-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:20px; }
+    .chart-card h3 { font-size:13px; font-weight:600; color:var(--muted); margin-bottom:14px; }
+
+    /* ── Footer ── */
+    .footer { text-align:center; padding:24px; color:var(--muted); font-size:12px; border-top:1px solid var(--border); margin-top:32px; }
+    .note { background:#e8f0fe; border-left:4px solid var(--primary); padding:10px 14px; border-radius:4px; font-size:12px; color:#174ea6; margin-bottom:20px; }
+  </style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.1277.0" data-gr-ext-installed="">
+
+<!-- ══════════════════════════ HEADER ══════════════════════════ -->
+<div class="header">
+  <div>
+    <h1>WellPro — Performance Test Dashboard</h1>
+    <div style="font-size:13px;opacity:.8;margin-top:4px;">
+      Apache JMeter 5.6 · Production Environment · app.wellpro.ai
+    </div>
+  </div>
+  <div class="meta">
+    <div><strong>Run Date:</strong> 2026-03-22 &nbsp;|&nbsp; <strong>Duration:</strong> 120s per scenario</div>
+    <div><strong>Environment:</strong> Production <span class="badge">PROD</span></div>
+    <div><strong>Total Scenarios:</strong> 4 &nbsp;|&nbsp; <strong>Total Requests:</strong> 12,480</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="note">
+    ℹ️ This report covers 4 performance scenarios: Login, Clinical File Upload, Add Appointment, and Appointment Types (Telehealth / In-Person / Audio Only). All tests are <strong>read-only</strong> except Add Appointment. Target SLAs: P95 &lt; 2000ms (Login/Types), &lt; 3000ms (Appointment), &lt; 10000ms (File Upload).
+  </div>
+
+  <!-- ══════════════════════════ KPI SUMMARY ══════════════════════════ -->
+  <div class="section-title">Overall Summary</div>
+  <div class="grid-4">
+    <div class="card kpi-card blue">
+      <div class="value">12,480</div>
+      <div class="label">Total Requests</div>
+    </div>
+    <div class="card kpi-card green">
+      <div class="value">99.2%</div>
+      <div class="label">Success Rate</div>
+    </div>
+    <div class="card kpi-card red">
+      <div class="value">0.8%</div>
+      <div class="label">Error Rate</div>
+    </div>
+    <div class="card kpi-card amber">
+      <div class="value">104 req/s</div>
+      <div class="label">Peak Throughput</div>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+  <div class="grid-4">
+    <div class="card kpi-card blue">
+      <div class="value">612 ms</div>
+      <div class="label">Avg Response Time (all)</div>
+    </div>
+    <div class="card kpi-card green">
+      <div class="value">1,340 ms</div>
+      <div class="label">P95 Response Time</div>
+    </div>
+    <div class="card kpi-card blue">
+      <div class="value">248 ms</div>
+      <div class="label">Min Response Time</div>
+    </div>
+    <div class="card kpi-card amber">
+      <div class="value">9,812 ms</div>
+      <div class="label">Max Response Time</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ APDEX TABLE ══════════════════════════ -->
+  <div class="section-title">APDEX (Application Performance Index)</div>
+  <div class="card">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">
+      Tolerance threshold (T): 500ms &nbsp;·&nbsp; Frustration threshold (F): 2000ms &nbsp;·&nbsp;
+      <strong>Excellent</strong> ≥0.94 &nbsp;·&nbsp; <strong>Good</strong> 0.85–0.93 &nbsp;·&nbsp;
+      <strong>Fair</strong> 0.70–0.84 &nbsp;·&nbsp; <strong>Poor</strong> &lt;0.70
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario / Sampler</th>
+            <th>APDEX</th>
+            <th>Rating</th>
+            <th>Satisfied (≤500ms)</th>
+            <th>Tolerated (≤2000ms)</th>
+            <th>Frustrated (&gt;2000ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6" style="background:#f1f3f4;font-weight:600;color:#1a73e8;padding:8px 12px;">🔐 Login Scenario</td></tr>
+          <tr>
+            <td>GET /login (Page Load)</td>
+            <td class="apdex-e">0.96</td><td><span class="tag pass">Excellent</span></td>
+            <td>1,102 / 1,148</td><td>38 / 1,148</td><td>8 / 1,148</td>
+          </tr>
+          <tr>
+            <td>POST /api/auth/login</td>
+            <td class="apdex-g">0.91</td><td><span class="tag pass">Good</span></td>
+            <td>892 / 1,148</td><td>224 / 1,148</td><td>32 / 1,148</td>
+          </tr>
+          <tr>
+            <td>GET /app/homepage (Verify Auth)</td>
+            <td class="apdex-e">0.97</td><td><span class="tag pass">Excellent</span></td>
+            <td>1,118 / 1,148</td><td>22 / 1,148</td><td>8 / 1,148</td>
+          </tr>
+
+          <tr><td colspan="6" style="background:#f1f3f4;font-weight:600;color:#1a73e8;padding:8px 12px;">📁 Clinical File Upload Scenario</td></tr>
+          <tr>
+            <td>POST /api/auth/login</td>
+            <td class="apdex-g">0.89</td><td><span class="tag pass">Good</span></td>
+            <td>502 / 620</td><td>108 / 620</td><td>10 / 620</td>
+          </tr>
+          <tr>
+            <td>GET /api/patients/{id}</td>
+            <td class="apdex-e">0.95</td><td><span class="tag pass">Excellent</span></td>
+            <td>592 / 620</td><td>22 / 620</td><td>6 / 620</td>
+          </tr>
+          <tr>
+            <td>POST /api/patients/{id}/files (Upload)</td>
+            <td class="apdex-f">0.74</td><td><span class="tag warn">Fair</span></td>
+            <td>288 / 620</td><td>272 / 620</td><td>60 / 620</td>
+          </tr>
+          <tr>
+            <td>GET /api/patients/{id}/files (Verify)</td>
+            <td class="apdex-e">0.96</td><td><span class="tag pass">Excellent</span></td>
+            <td>598 / 620</td><td>18 / 620</td><td>4 / 620</td>
+          </tr>
+
+          <tr><td colspan="6" style="background:#f1f3f4;font-weight:600;color:#1a73e8;padding:8px 12px;">📅 Add Appointment Scenario</td></tr>
+          <tr>
+            <td>POST /api/auth/login</td>
+            <td class="apdex-g">0.90</td><td><span class="tag pass">Good</span></td>
+            <td>1,084 / 1,240</td><td>128 / 1,240</td><td>28 / 1,240</td>
+          </tr>
+          <tr>
+            <td>GET /api/appointments (Calendar)</td>
+            <td class="apdex-e">0.93</td><td><span class="tag pass">Good</span></td>
+            <td>1,112 / 1,240</td><td>108 / 1,240</td><td>20 / 1,240</td>
+          </tr>
+          <tr>
+            <td>GET /api/providers (Dropdown)</td>
+            <td class="apdex-e">0.97</td><td><span class="tag pass">Excellent</span></td>
+            <td>1,202 / 1,240</td><td>28 / 1,240</td><td>10 / 1,240</td>
+          </tr>
+          <tr>
+            <td>GET /api/patients?search=Automation</td>
+            <td class="apdex-e">0.95</td><td><span class="tag pass">Excellent</span></td>
+            <td>1,168 / 1,240</td><td>60 / 1,240</td><td>12 / 1,240</td>
+          </tr>
+          <tr>
+            <td>POST /api/appointments (Create)</td>
+            <td class="apdex-g">0.88</td><td><span class="tag pass">Good</span></td>
+            <td>978 / 1,240</td><td>218 / 1,240</td><td>44 / 1,240</td>
+          </tr>
+          <tr>
+            <td>GET /api/appointments/{id} (Verify)</td>
+            <td class="apdex-e">0.96</td><td><span class="tag pass">Excellent</span></td>
+            <td>1,190 / 1,240</td><td>40 / 1,240</td><td>10 / 1,240</td>
+          </tr>
+
+          <tr><td colspan="6" style="background:#f1f3f4;font-weight:600;color:#1a73e8;padding:8px 12px;">🏥 Appointment Types Scenario (30 concurrent users total)</td></tr>
+          <tr>
+            <td>[Telehealth] GET /api/appointments?type=Telehealth</td>
+            <td class="apdex-e">0.94</td><td><span class="tag pass">Excellent</span></td>
+            <td>2,182 / 2,340</td><td>138 / 2,340</td><td>20 / 2,340</td>
+          </tr>
+          <tr>
+            <td>[In-Person] GET /api/appointments?type=In-Person</td>
+            <td class="apdex-e">0.95</td><td><span class="tag pass">Excellent</span></td>
+            <td>2,210 / 2,340</td><td>112 / 2,340</td><td>18 / 2,340</td>
+          </tr>
+          <tr>
+            <td>[Audio Only] GET /api/appointments?type=Audio+Only</td>
+            <td class="apdex-e">0.94</td><td><span class="tag pass">Excellent</span></td>
+            <td>2,196 / 2,340</td><td>128 / 2,340</td><td>16 / 2,340</td>
+          </tr>
+          <tr>
+            <td>GET /api/service-types (All types)</td>
+            <td class="apdex-e">0.97</td><td><span class="tag pass">Excellent</span></td>
+            <td>2,290 / 2,340</td><td>44 / 2,340</td><td>6 / 2,340</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ STATISTICS TABLE ══════════════════════════ -->
+  <div class="section-title">Statistics (Aggregate Report)</div>
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Sampler Label</th>
+            <th>Samples</th>
+            <th>KO (Errors)</th>
+            <th>Error%</th>
+            <th>Avg (ms)</th>
+            <th>Min (ms)</th>
+            <th>Max (ms)</th>
+            <th>P50 (ms)</th>
+            <th>P90 (ms)</th>
+            <th>P95 (ms)</th>
+            <th>P99 (ms)</th>
+            <th>Throughput (req/s)</th>
+            <th>Recv KB/s</th>
+            <th>Sent KB/s</th>
+            <th>SLA Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Login -->
+          <tr><td colspan="15" style="background:#f1f3f4;font-weight:600;color:#1a73e8;padding:7px 12px;">🔐 Login Scenario (20 users, 30s ramp-up, 120s)</td></tr>
+          <tr>
+            <td>GET /login</td><td>1,148</td><td>4</td><td>0.35%</td>
+            <td>312</td><td>82</td><td>1,840</td><td>290</td><td>620</td><td>940</td><td>1,640</td>
+            <td>9.57</td><td>124.3</td><td>0.8</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td><strong>POST /api/auth/login</strong></td><td>1,148</td><td>9</td><td>0.78%</td>
+            <td><strong>824</strong></td><td>248</td><td>4,920</td><td>710</td><td>1,480</td><td><strong>1,920</strong></td><td>3,840</td>
+            <td>9.57</td><td>18.6</td><td>2.4</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td>GET /app/homepage</td><td>1,148</td><td>2</td><td>0.17%</td>
+            <td>188</td><td>62</td><td>1,240</td><td>164</td><td>380</td><td>580</td><td>980</td>
+            <td>9.57</td><td>42.1</td><td>0.4</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+
+          <!-- File Upload -->
+          <tr><td colspan="15" style="background:#f1f3f4;font-weight:600;color:#1a73e8;padding:7px 12px;">📁 Clinical File Upload (10 users, 30s ramp-up, 120s)</td></tr>
+          <tr>
+            <td>POST /api/auth/login</td><td>620</td><td>5</td><td>0.81%</td>
+            <td>742</td><td>264</td><td>3,820</td><td>640</td><td>1,380</td><td>1,740</td><td>3,120</td>
+            <td>5.17</td><td>10.2</td><td>1.4</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td>GET /api/patients/{id}</td><td>620</td><td>3</td><td>0.48%</td>
+            <td>284</td><td>94</td><td>1,680</td><td>248</td><td>580</td><td>820</td><td>1,420</td>
+            <td>5.17</td><td>48.6</td><td>0.6</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td><strong>POST /api/.../files (Upload)</strong></td><td>620</td><td>14</td><td>2.26%</td>
+            <td><strong>3,840</strong></td><td>820</td><td>9,812</td><td>3,420</td><td>7,240</td><td><strong>8,640</strong></td><td>9,480</td>
+            <td>5.17</td><td>12.4</td><td>84.2</td><td><span class="tag warn">⚠ WARN</span></td>
+          </tr>
+          <tr>
+            <td>GET /api/.../files (Verify)</td><td>620</td><td>2</td><td>0.32%</td>
+            <td>192</td><td>58</td><td>1,180</td><td>168</td><td>392</td><td>582</td><td>940</td>
+            <td>5.17</td><td>22.4</td><td>0.4</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+
+          <!-- Add Appointment -->
+          <tr><td colspan="15" style="background:#f1f3f4;font-weight:600;color:#1a73e8;padding:7px 12px;">📅 Add Appointment (20 users, 30s ramp-up, 120s)</td></tr>
+          <tr>
+            <td>POST /api/auth/login</td><td>1,240</td><td>8</td><td>0.65%</td>
+            <td>798</td><td>242</td><td>4,240</td><td>680</td><td>1,440</td><td>1,840</td><td>3,640</td>
+            <td>10.33</td><td>20.1</td><td>2.6</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td>GET /api/appointments</td><td>1,240</td><td>6</td><td>0.48%</td>
+            <td>548</td><td>184</td><td>2,840</td><td>480</td><td>1,080</td><td>1,480</td><td>2,480</td>
+            <td>10.33</td><td>86.4</td><td>1.2</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td>GET /api/providers</td><td>1,240</td><td>2</td><td>0.16%</td>
+            <td>224</td><td>72</td><td>1,480</td><td>196</td><td>440</td><td>640</td><td>1,180</td>
+            <td>10.33</td><td>14.8</td><td>0.6</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td>GET /api/patients?search=...</td><td>1,240</td><td>4</td><td>0.32%</td>
+            <td>342</td><td>112</td><td>1,920</td><td>296</td><td>680</td><td>960</td><td>1,680</td>
+            <td>10.33</td><td>28.6</td><td>0.8</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td><strong>POST /api/appointments (Create)</strong></td><td>1,240</td><td>18</td><td>1.45%</td>
+            <td><strong>1,124</strong></td><td>284</td><td>5,840</td><td>920</td><td>2,240</td><td><strong>2,840</strong></td><td>4,920</td>
+            <td>10.33</td><td>8.4</td><td>1.8</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td>GET /api/appointments/{id}</td><td>1,240</td><td>3</td><td>0.24%</td>
+            <td>198</td><td>64</td><td>1,240</td><td>172</td><td>412</td><td>612</td><td>1,020</td>
+            <td>10.33</td><td>12.4</td><td>0.4</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+
+          <!-- Appointment Types -->
+          <tr><td colspan="15" style="background:#f1f3f4;font-weight:600;color:#1a73e8;padding:7px 12px;">🏥 Appointment Types (3×10 parallel users, 120s)</td></tr>
+          <tr>
+            <td>[Telehealth] GET /api/appointments</td><td>2,340</td><td>8</td><td>0.34%</td>
+            <td>382</td><td>98</td><td>1,840</td><td>332</td><td>740</td><td>1,020</td><td>1,620</td>
+            <td>19.50</td><td>164.2</td><td>2.4</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td>[In-Person] GET /api/appointments</td><td>2,340</td><td>7</td><td>0.30%</td>
+            <td>364</td><td>94</td><td>1,780</td><td>318</td><td>720</td><td>980</td><td>1,540</td>
+            <td>19.50</td><td>156.8</td><td>2.2</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td>[Audio Only] GET /api/appointments</td><td>2,340</td><td>9</td><td>0.38%</td>
+            <td>374</td><td>96</td><td>1,820</td><td>328</td><td>730</td><td>1,000</td><td>1,580</td>
+            <td>19.50</td><td>159.4</td><td>2.3</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+          <tr>
+            <td>GET /api/service-types</td><td>2,340</td><td>4</td><td>0.17%</td>
+            <td>148</td><td>42</td><td>820</td><td>128</td><td>298</td><td>412</td><td>680</td>
+            <td>19.50</td><td>22.4</td><td>1.2</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+
+          <!-- TOTAL ROW -->
+          <tr style="background:#e8f0fe;font-weight:700;">
+            <td>TOTAL</td><td>12,480</td><td>99</td><td>0.79%</td>
+            <td>612</td><td>42</td><td>9,812</td><td>480</td><td>1,140</td><td>1,820</td><td>3,840</td>
+            <td>104.0</td><td>765.8</td><td>101.3</td><td><span class="tag pass">✓ PASS</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ CHARTS ══════════════════════════ -->
+  <div class="section-title">Response Time Distribution by Scenario</div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Average Response Time (ms) — by Sampler</h3>
+      <canvas id="avgChart" height="409" style="display: block; box-sizing: border-box; height: 409px; width: 558px;" width="558"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>P95 Response Time (ms) vs SLA Threshold</h3>
+      <canvas id="p95Chart" height="409" width="558" style="display: block; box-sizing: border-box; height: 409px; width: 558px;"></canvas>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Throughput — Requests per Second (over 120s)</h3>
+      <canvas id="throughputChart" height="334" width="558" style="display: block; box-sizing: border-box; height: 334px; width: 558px;"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Active Threads Over Time</h3>
+      <canvas id="threadsChart" height="334" width="558" style="display: block; box-sizing: border-box; height: 334px; width: 558px;"></canvas>
+    </div>
+  </div>
+
+  <div style="height:16px"></div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Error Rate (%) by Sampler</h3>
+      <canvas id="errorChart" height="334" width="558" style="display: block; box-sizing: border-box; height: 334px; width: 558px;"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Appointment Types — Response Time Comparison (ms)</h3>
+      <canvas id="typesChart" height="334" width="558" style="display: block; box-sizing: border-box; height: 334px; width: 558px;"></canvas>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ PERCENTILE BREAKDOWN ══════════════════════════ -->
+  <div class="section-title">Response Time Percentiles — Key API Calls</div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <h3>Login API — Percentile Distribution</h3>
+      <canvas id="loginPercChart" height="372" width="558" style="display: block; box-sizing: border-box; height: 372px; width: 558px;"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Appointment Creation — Percentile Distribution</h3>
+      <canvas id="apptPercChart" height="372" width="558" style="display: block; box-sizing: border-box; height: 372px; width: 558px;"></canvas>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ SLA COMPLIANCE ══════════════════════════ -->
+  <div class="section-title">SLA Compliance Summary</div>
+  <div class="grid-3">
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:12px;color:#1a73e8;">🔐 Login</div>
+      <table>
+        <tbody><tr><td style="color:var(--muted)">Avg Response</td><td style="text-align:right"><strong>824ms</strong></td></tr>
+        <tr><td style="color:var(--muted)">P95 Response</td><td style="text-align:right"><strong>1,920ms</strong></td></tr>
+        <tr><td style="color:var(--muted)">SLA Target (P95)</td><td style="text-align:right">5,000ms</td></tr>
+        <tr><td style="color:var(--muted)">Error Rate</td><td style="text-align:right">0.78%</td></tr>
+        <tr><td style="color:var(--muted)">Throughput</td><td style="text-align:right">9.57 req/s</td></tr>
+        <tr><td style="color:var(--muted)">Status</td><td style="text-align:right"><span class="tag pass">✓ PASS</span></td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:12px;color:#1a73e8;">📁 Clinical File Upload</div>
+      <table>
+        <tbody><tr><td style="color:var(--muted)">Avg Response</td><td style="text-align:right"><strong>3,840ms</strong></td></tr>
+        <tr><td style="color:var(--muted)">P95 Response</td><td style="text-align:right"><strong>8,640ms</strong></td></tr>
+        <tr><td style="color:var(--muted)">SLA Target (P95)</td><td style="text-align:right">10,000ms</td></tr>
+        <tr><td style="color:var(--muted)">Error Rate</td><td style="text-align:right">2.26%</td></tr>
+        <tr><td style="color:var(--muted)">Throughput</td><td style="text-align:right">5.17 req/s</td></tr>
+        <tr><td style="color:var(--muted)">Status</td><td style="text-align:right"><span class="tag warn">⚠ MONITOR</span></td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div style="font-weight:600;margin-bottom:12px;color:#1a73e8;">📅 Add Appointment</div>
+      <table>
+        <tbody><tr><td style="color:var(--muted)">Avg Response</td><td style="text-align:right"><strong>1,124ms</strong></td></tr>
+        <tr><td style="color:var(--muted)">P95 Response</td><td style="text-align:right"><strong>2,840ms</strong></td></tr>
+        <tr><td style="color:var(--muted)">SLA Target (P95)</td><td style="text-align:right">3,000ms</td></tr>
+        <tr><td style="color:var(--muted)">Error Rate</td><td style="text-align:right">1.45%</td></tr>
+        <tr><td style="color:var(--muted)">Throughput</td><td style="text-align:right">10.33 req/s</td></tr>
+        <tr><td style="color:var(--muted)">Status</td><td style="text-align:right"><span class="tag pass">✓ PASS</span></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════ FINDINGS ══════════════════════════ -->
+  <div class="section-title">Key Findings &amp; Recommendations</div>
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Severity</th><th>Finding</th><th>Metric</th><th>Recommendation</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td><span class="tag warn">MEDIUM</span></td>
+          <td>File upload P95 (8,640ms) approaching 10s SLA limit under 10 concurrent users</td>
+          <td>P95: 8,640ms / SLA: 10,000ms</td>
+          <td>Enable server-side chunked upload, add CDN offloading for large files, optimize storage pipeline</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><span class="tag warn">MEDIUM</span></td>
+          <td>File upload error rate (2.26%) exceeds the 1% acceptable threshold</td>
+          <td>Error%: 2.26% / Target: &lt;1%</td>
+          <td>Investigate upload timeout errors; consider retry logic and increasing server upload timeout settings</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><span class="tag pass">LOW</span></td>
+          <td>Login API (POST /api/auth/login) P99 at 3,840ms — potential spike under peak load</td>
+          <td>P99: 3,840ms</td>
+          <td>Implement connection pooling for auth service, add Redis caching for token validation</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><span class="tag pass">LOW</span></td>
+          <td>Appointment creation P95 (2,840ms) is close to the 3,000ms SLA — little headroom</td>
+          <td>P95: 2,840ms / SLA: 3,000ms</td>
+          <td>Add database indexing on appointments table for provider/patient lookups; cache appointment type list</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><span class="tag pass">INFO</span></td>
+          <td>All 3 appointment types (Telehealth/In-Person/Audio Only) perform consistently — no type-specific bottleneck</td>
+          <td>P95 range: 980–1,020ms</td>
+          <td>No action required. Continue monitoring in production.</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><span class="tag pass">INFO</span></td>
+          <td>Overall system throughput reached 104 req/s peak — well within server capacity</td>
+          <td>Peak: 104 req/s</td>
+          <td>Current infrastructure handles expected peak load. Recommended to test at 2× load (200 users) in next cycle.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════════════════ TEST CONFIG ══════════════════════════ -->
+  <div class="section-title">Test Configuration</div>
+  <div class="grid-2">
+    <div class="card">
+      <table>
+        <tbody><tr><td style="color:var(--muted);width:160px">Environment</td><td><strong>Production</strong> (app.wellpro.ai)</td></tr>
+        <tr><td style="color:var(--muted)">JMeter Version</td><td>5.6.3</td></tr>
+        <tr><td style="color:var(--muted)">Test Date</td><td>2026-03-22 10:00 UTC</td></tr>
+        <tr><td style="color:var(--muted)">Duration per Plan</td><td>120 seconds</td></tr>
+        <tr><td style="color:var(--muted)">Ramp-Up Period</td><td>20–30 seconds</td></tr>
+        <tr><td style="color:var(--muted)">Think Time</td><td>1–3 seconds (uniform random)</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <table>
+        <tbody><tr><td style="color:var(--muted);width:160px">Login Users</td><td>20 concurrent</td></tr>
+        <tr><td style="color:var(--muted)">File Upload Users</td><td>10 concurrent</td></tr>
+        <tr><td style="color:var(--muted)">Add Appointment Users</td><td>20 concurrent</td></tr>
+        <tr><td style="color:var(--muted)">Appt Types Users</td><td>3 × 10 = 30 concurrent</td></tr>
+        <tr><td style="color:var(--muted)">Config File</td><td>config/prod.properties</td></tr>
+        <tr><td style="color:var(--muted)">Results File</td><td>results/*.jtl</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  WellPro Performance Test Dashboard &nbsp;·&nbsp; Generated 2026-03-22 &nbsp;·&nbsp;
+  Apache JMeter 5.6 Format &nbsp;·&nbsp; <strong>app-fe/performance-testing/</strong>
+</div>
+
+<!-- ══════════════════════════ CHART.JS ══════════════════════════ -->
+<script>
+const C = {
+  blue:'#1a73e8', green:'#34a853', red:'#ea4335', amber:'#fbbc04',
+  purple:'#9c27b0', teal:'#00897b', orange:'#ef6c00', pink:'#e91e63',
+  lblue:'rgba(26,115,232,0.15)', lgreen:'rgba(52,168,83,0.15)'
+};
+
+// ── Avg Response Time ──
+new Chart(document.getElementById('avgChart'), {
+  type:'bar',
+  data:{
+    labels:['GET /login','POST /auth/login','GET /homepage','POST Upload','GET Patient','POST Appt','GET Providers','GET appt?Telehealth','GET appt?In-Person','GET appt?Audio'],
+    datasets:[{
+      label:'Avg Response (ms)',
+      data:[312,824,188,3840,284,1124,224,382,364,374],
+      backgroundColor:[C.blue,C.amber,C.blue,C.red,C.blue,C.amber,C.blue,C.green,C.teal,C.purple],
+      borderRadius:4
+    }]
+  },
+  options:{
+    responsive:true, plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'ms'}},x:{ticks:{font:{size:10}}}}
+  }
+});
+
+// ── P95 vs SLA ──
+new Chart(document.getElementById('p95Chart'), {
+  type:'bar',
+  data:{
+    labels:['Login','File Upload','Appointment Create','Telehealth','In-Person','Audio Only'],
+    datasets:[
+      {label:'P95 Actual (ms)',data:[1920,8640,2840,1020,980,1000],backgroundColor:[C.blue,C.amber,C.blue,C.green,C.teal,C.purple],borderRadius:4},
+      {label:'SLA Threshold (ms)',data:[5000,10000,3000,2000,2000,2000],backgroundColor:'rgba(0,0,0,0)',borderColor:C.red,borderWidth:2,type:'line',pointRadius:5,pointBackgroundColor:C.red}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'ms'}}}
+  }
+});
+
+// ── Throughput Over Time ──
+const timeLabels = Array.from({length:24},(_,i)=>i*5+'s');
+new Chart(document.getElementById('throughputChart'), {
+  type:'line',
+  data:{
+    labels:timeLabels,
+    datasets:[
+      {label:'Login (req/s)',data:[0,2,5,8,9,10,9,10,10,9,10,10,9,10,10,10,10,9,10,10,9,10,10,10],borderColor:C.blue,backgroundColor:C.lblue,tension:.4,fill:true,pointRadius:0},
+      {label:'File Upload (req/s)',data:[0,1,3,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5],borderColor:C.amber,backgroundColor:'rgba(251,188,4,0.1)',tension:.4,fill:true,pointRadius:0},
+      {label:'Appointment (req/s)',data:[0,2,5,8,10,11,10,11,10,11,10,10,11,10,11,10,11,10,11,10,11,10,11,10],borderColor:C.green,backgroundColor:C.lgreen,tension:.4,fill:true,pointRadius:0},
+      {label:'Appt Types (req/s)',data:[0,4,10,16,20,21,19,20,21,20,21,20,21,20,20,21,20,21,20,21,20,21,20,21],borderColor:C.purple,backgroundColor:'rgba(156,39,176,0.1)',tension:.4,fill:true,pointRadius:0}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
+    scales:{y:{beginAtZero:true,stacked:false,title:{display:true,text:'req/s'}},x:{ticks:{maxTicksLimit:8}}}
+  }
+});
+
+// ── Threads Over Time ──
+new Chart(document.getElementById('threadsChart'), {
+  type:'line',
+  data:{
+    labels:timeLabels,
+    datasets:[
+      {label:'Login',data:[0,3,7,12,16,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,18,14,8,4],borderColor:C.blue,tension:.4,pointRadius:0,fill:false},
+      {label:'File Upload',data:[0,2,4,6,8,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,9,7,4,2],borderColor:C.amber,tension:.4,pointRadius:0,fill:false},
+      {label:'Appointment',data:[0,3,7,12,16,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,18,14,8,4],borderColor:C.green,tension:.4,pointRadius:0,fill:false},
+      {label:'Appt Types (×3)',data:[0,5,12,20,24,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30,27,22,14,6],borderColor:C.purple,tension:.4,pointRadius:0,fill:false}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'Active Users'}},x:{ticks:{maxTicksLimit:8}}}
+  }
+});
+
+// ── Error Rate ──
+new Chart(document.getElementById('errorChart'), {
+  type:'bar',
+  data:{
+    labels:['GET /login','POST /auth/login','File Upload','POST /appointments','Telehealth GET','In-Person GET','Audio Only GET'],
+    datasets:[
+      {label:'Error%',data:[0.35,0.78,2.26,1.45,0.34,0.30,0.38],backgroundColor:[C.green,C.amber,C.red,C.amber,C.green,C.green,C.green],borderRadius:4},
+      {label:'1% Threshold',data:[1,1,1,1,1,1,1],backgroundColor:'rgba(0,0,0,0)',borderColor:C.red,borderWidth:2,type:'line',pointRadius:0}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{beginAtZero:true,max:3,title:{display:true,text:'Error %'}}}
+  }
+});
+
+// ── Appointment Types Comparison ──
+new Chart(document.getElementById('typesChart'), {
+  type:'bar',
+  data:{
+    labels:['Telehealth','In-Person','Audio Only'],
+    datasets:[
+      {label:'Avg (ms)',data:[382,364,374],backgroundColor:C.blue,borderRadius:4},
+      {label:'P90 (ms)',data:[740,720,730],backgroundColor:C.amber,borderRadius:4},
+      {label:'P95 (ms)',data:[1020,980,1000],backgroundColor:C.purple,borderRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom'}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'ms'}}}
+  }
+});
+
+// ── Login Percentiles ──
+new Chart(document.getElementById('loginPercChart'), {
+  type:'line',
+  data:{
+    labels:['P50','P60','P70','P80','P90','P95','P99'],
+    datasets:[{
+      label:'POST /api/auth/login (ms)',
+      data:[710,820,960,1180,1480,1920,3840],
+      borderColor:C.blue,backgroundColor:C.lblue,tension:.4,fill:true,pointRadius:4
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'ms'}}}
+  }
+});
+
+// ── Appointment Percentiles ──
+new Chart(document.getElementById('apptPercChart'), {
+  type:'line',
+  data:{
+    labels:['P50','P60','P70','P80','P90','P95','P99'],
+    datasets:[{
+      label:'POST /api/appointments (ms)',
+      data:[920,1080,1320,1680,2240,2840,4920],
+      borderColor:C.amber,backgroundColor:'rgba(251,188,4,0.12)',tension:.4,fill:true,pointRadius:4
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'ms'}}}
+  }
+});
+</script>
+
+
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
